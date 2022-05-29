@@ -6,16 +6,25 @@ let typedef = [
     type Query
   `,
 ];
-let resolver = { Query: {} };
+let _resolver = { Query: {} };
 
+const getParams = (params = {}) => {
+  // (id: ID!)
+  const arr = [];
+  for (let key in params) {
+    arr.push(`${key}:${params[key]}`);
+  }
+  const paramsString = arr.join(",");
+  return paramsString === "" ? "" : "(" + paramsString + ")";
+};
 const GraphqlProvider = {
-  addQuery(name, type, resolverCallback) {
+  addQuery({ name = "", params = {}, type = "", resolver = () => {} }) {
     typedef.push(gql`
       extend type Query{
-        ${name}: ${type}
+        ${name}${getParams(params)}: ${type}
       }
     `);
-    resolver.Query[name] = resolverCallback;
+    _resolver.Query[name] = resolver;
     return this;
   },
   addType(name, typeString) {
@@ -36,7 +45,7 @@ const GraphqlProvider = {
     return typedef;
   },
   get resolvers() {
-    return resolver;
+    return _resolver;
   },
 };
 
