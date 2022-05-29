@@ -3,15 +3,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 
-const typeName = "Auth";
-
-GraphqlProvider.addType(
-  typeName,
-  `
-   code:Int,
-   message:String,
-  `
-)
+GraphqlProvider.addType({
+  Auth: `
+    code:Int,
+    message:String,
+  `,
+})
 
   // this method args (QueryName, returnType, Resolver)
   .addQuery({
@@ -20,7 +17,7 @@ GraphqlProvider.addType(
       username: "String!",
       password: "String!",
     },
-    type: typeName,
+    type: "Auth",
     resolver: async (parent, { username, password }, context, info) =>
       User.findOne({ where: { username } }).then((e) => {
         // if user not found

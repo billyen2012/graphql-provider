@@ -2,18 +2,20 @@ const { GraphqlProvider } = require("../graphql-provider"); // make sure this is
 const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
-const typeName = "User";
-
-GraphqlProvider.addType(
-  typeName,
-  `
-   id: ID!,
-   email:String,
-   username:String,
-   created_at:String,
-   updated_at:String
-`
-)
+GraphqlProvider.addType({
+  User: `
+    id: ID!,
+    email:String,
+    username:String,
+    created_at:String,
+    updated_at:String
+  `,
+  CreateUser: `
+    code:String,
+    message:String
+    token:String
+  `,
+})
 
   // this method args (QueryName, returnType, Resolver)
   .addQuery({
@@ -21,7 +23,7 @@ GraphqlProvider.addType(
     params: {
       id: "ID!",
     },
-    type: typeName,
+    type: "User",
     resolver: async (parent, { id }, context, info) => {
       return User.findByPk(id).then((e) => (e ? e.toJSON() : null));
     },
@@ -29,20 +31,12 @@ GraphqlProvider.addType(
 
   .addQuery({
     name: "getUsers",
-    type: `[${typeName}]`,
+    type: `[User]`,
     resolver: async () => {
       return User.findAll().then((e) => e.map((model) => model.toJSON()));
     },
   })
 
-  .addType(
-    "CreateUser",
-    `
-     code:String,
-     message:String
-     token:String
-  `
-  )
   .addMutation({
     name: "postUser",
     params: {

@@ -32,12 +32,32 @@ const GraphqlProvider = {
     _resolver.Mutation[name] = resolver;
     return this;
   },
-  addType(name, typeString) {
-    typedef.push(gql`
-      type ${name}{
-        ${typeString}
+  /**
+   * ```js
+   * GraphqlProvider.addType({
+   *    User: `
+   *      id: ID!,
+   *      email:String,
+   *      username:String,
+   *      created_at:String,
+   *      updated_at:String
+   *    `,
+   *    // keep going adding your next type
+   *    nextType:`
+   *     ...
+   *    `
+   * })
+   * ```
+   * @param {Record<string, string>} type
+   */
+  addType(type = {}) {
+    for (let key in type) {
+      typedef.push(gql`
+      type ${key}{
+        ${type[key]}
       }
     `);
+    }
     return this;
   },
   load(path) {
