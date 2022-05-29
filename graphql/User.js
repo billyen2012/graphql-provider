@@ -7,8 +7,8 @@ GraphqlProvider.addType({
     id: ID!,
     email:String,
     username:String,
-    created_at:String,
-    updated_at:String
+    createdAt:Float,
+    updatedAt:Float
   `,
   CreateUser: `
     code:String,
@@ -29,6 +29,7 @@ GraphqlProvider.addType({
     },
     type: "User",
     resolver: async (parent, { id }, context, info) => {
+      User.findByPk(id).then((e) => (e ? console.log(e.toJSON()) : null));
       return User.findByPk(id).then((e) => (e ? e.toJSON() : null));
     },
   })
