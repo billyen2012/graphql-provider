@@ -15,6 +15,10 @@ GraphqlProvider.addType({
     message:String
     token:String
   `,
+  UpdatePassword: `
+    code:String,
+    message:String
+  `,
 })
 
   // this method args (QueryName, returnType, Resolver)
@@ -65,5 +69,56 @@ GraphqlProvider.addType({
           message: "An error has occured while created new user",
           token: null,
         }));
+    },
+  })
+  .addMutation({
+    name: "putPassword",
+    params: {
+      password: "String!",
+    },
+    type: "UpdatePassword",
+    beforeResolve: async (parent, args, context, info) => {
+      const { req } = context;
+
+      if (!req.headers.authorization)
+        return {
+          code: 400,
+          message: "authorization header not exist",
+        };
+
+      // validate token
+      try {
+        const payload = jwt.verify(req.headers.authorization, "the_secret");
+        const user = await User.findByPk(payload.subject);
+        // return bad request if user not exist
+        if (!user)
+          return {
+            code: 404,
+            message: "user not exist",
+          };
+        // map user object to context.user if success
+        context.user = user;
+      } catch {
+        return {
+          code: 403,
+          message: "bad token",
+        };
+      }
+    },
+
+    resolver: async (parent, { password }, context, info) => {
+      context.user.password = password;
+      try {
+        await context.user.save();
+        return {
+          code: 200,
+          message: "password updated",
+        };
+      } catch {
+        return {
+          code: 500,
+          message: "something went wrong while trying to update password",
+        };
+      }
     },
   });

@@ -23,13 +23,24 @@ const GraphqlProvider = {
     _resolver.Query[name] = resolver;
     return this;
   },
-  addMutation({ name = "", params = {}, type = "", resolver = () => {} }) {
+  addMutation({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+  }) {
     typedef.push(gql`
       extend type Mutation{
         ${name}${getParams(params)}: ${type}
       }
     `);
-    _resolver.Mutation[name] = resolver;
+    _resolver.Mutation[name] = async (parent, args, context, info) => {
+      const response = await beforeResolve(parent, args, context, info);
+      if (response) return response;
+
+      return resolver(parent, args, context, info);
+    };
     return this;
   },
   /**
