@@ -1,3 +1,10 @@
+# Dependencies
+
+    "apollo-server": "^3.8.1" or up
+    "graphql": "^16.5.0" or up
+
+# Basic setup
+
 ## Step 1
 
 create a folder for store all the files for the `GraphqlProvider`
@@ -50,7 +57,6 @@ GraphqlProvider.addType(
     `,
 );
 
-// this method args (QueryName, returnType, Resolver)
 GraphqlProvider.addQuery({
     name: "getUser",
     params: {
@@ -61,11 +67,18 @@ GraphqlProvider.addQuery({
       const token = context.req.headers.authorization
       // ....then your middleware logic go here
     }
+    onError(err){
+      // this will be called before err get passed to apollo server's error handler
+      // will be handy for throwing custom error or do some error checking
+    },
     resolver: async (parent, { id }, context, info) => {
       User.findByPk(id).then((e) => (e ? console.log(e.toJSON()) : null));
       return User.findByPk(id).then((e) => (e ? e.toJSON() : null));
     },
-});
+// add your mutation, it will take the object with same property shown above
+}).addMutation({
+  ...
+})
 
 ```
 
@@ -92,5 +105,32 @@ const server = new ApolloServer({
 
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
+});
+```
+
+# Standardizing 'name'
+
+Since graphql is just single point of api, it does not like REST api that using GET, POST, DELETE,...etc, request name to tell using what is api is going to do to the data. Therefore, it is better to have a more Standardized way naming the 'name' for the Query and Mutation to make the api more intuitive by its name.
+
+To have a more REST api experiences, uses the following method to add new Query and Mutation
+
+below show the 4 methods provided by the provider and it will add a prefix to the 'name' and add it to Mutation or Query based on its api type.
+
+```js
+// this will add `getUser` to Query (get resources)
+GraphqlProvider.add({
+  name: "User",
+});
+// this will add `postUser` to Mutation (create resources)
+GraphqlProvider.post({
+  name: "User",
+});
+// this will add `putUser` to Mutation (update resources)
+GraphqlProvider.put({
+  name: "User",
+});
+// this will add `deleteUser` to Mutation (delete resources)
+GraphqlProvider.delete({
+  name: "User",
 });
 ```
