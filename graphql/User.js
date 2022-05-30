@@ -11,8 +11,8 @@ GraphqlProvider.addType({
     id: ID!,
     email:String,
     username:String,
-    createdAt:Float,
-    updatedAt:Float
+    createdAt:Date,
+    updatedAt:Date
   `,
   CreateUser: `
     code:String,
