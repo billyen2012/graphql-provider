@@ -25,8 +25,8 @@ GraphqlProvider.addType({
   `,
 })
 
-  .addQuery({
-    name: "getUser",
+  .get({
+    name: "User",
     params: {
       id: "ID!",
     },
@@ -37,16 +37,16 @@ GraphqlProvider.addType({
     },
   })
 
-  .addQuery({
-    name: "getUsers",
+  .get({
+    name: "Users",
     type: `[User]`,
     resolver: async () => {
       return User.findAll().then((e) => e.map((model) => model.toJSON()));
     },
   })
 
-  .addMutation({
-    name: "postUser",
+  .post({
+    name: "User",
     params: {
       username: "String!",
       password: "String!",
@@ -79,8 +79,8 @@ GraphqlProvider.addType({
       }));
     },
   })
-  .addMutation({
-    name: "putPassword",
+  .put({
+    name: "Password",
     params: {
       password: "String!",
     },
