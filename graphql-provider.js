@@ -4,6 +4,17 @@ const fs = require("fs");
 let typedef = [];
 let _resolver = { Query: {}, Mutation: {} };
 
+const resolverFunction = ({
+  resolver = () => {},
+  beforeResolve = () => {},
+}) => {
+  return async (parent, args, context, info) => {
+    const response = await beforeResolve(parent, args, context, info);
+    if (response) return response;
+    return resolver(parent, args, context, info);
+  };
+};
+
 const getParams = (params = {}) => {
   // (id: ID!)
   const arr = [];
@@ -13,14 +24,21 @@ const getParams = (params = {}) => {
   const paramsString = arr.join(",");
   return paramsString === "" ? "" : "(" + paramsString + ")";
 };
+
 const GraphqlProvider = {
-  addQuery({ name = "", params = {}, type = "", resolver = () => {} }) {
+  addQuery({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+  }) {
     typedef.push(gql`
       extend type Query{
         ${name}${getParams(params)}: ${type}
       }
     `);
-    _resolver.Query[name] = resolver;
+    _resolver.Query[name] = resolverFunction({ resolver, beforeResolve });
     return this;
   },
   addMutation({
@@ -35,12 +53,7 @@ const GraphqlProvider = {
         ${name}${getParams(params)}: ${type}
       }
     `);
-    _resolver.Mutation[name] = async (parent, args, context, info) => {
-      const response = await beforeResolve(parent, args, context, info);
-      if (response) return response;
-
-      return resolver(parent, args, context, info);
-    };
+    _resolver.Mutation[name] = resolverFunction({ resolver, beforeResolve });
     return this;
   },
   /**
