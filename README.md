@@ -108,9 +108,27 @@ server.listen().then(({ url }) => {
 });
 ```
 
+# Add Scalar Type
+
+```js
+const { GraphqlProvider } = require("../graphql-provider");
+// see https://www.apollographql.com/docs/apollo-server/schema/custom-scalars/  for details
+GraphqlProvider.addScalarType({
+  name: "Date",
+  description: "Date custom scalar type",
+  /**@param {Date} value */
+  serialize(value) {
+    return value.toISOString();
+  },
+  parseValue(value) {
+    return new Date(parseInt(value));
+  },
+});
+```
+
 # Standardizing 'name'
 
-Since graphql is just single point of api, it does not like REST api that using GET, POST, DELETE,...etc, request name to tell using what is api is going to do to the data. Therefore, it is better to have a more Standardized way naming the 'name' for the Query and Mutation to make the api more intuitive by its name.
+Since graphql is just a single point of api, it is not like REST api that uses GET, POST, DELETE,...etc, request name to tell user what the api is going to do to the data. Therefore, it is better to have a more Standardized way naming the 'name' for the Query and Mutation to make the api more intuitive by its name.
 
 To have a more REST api experiences, uses the following method to add new Query and Mutation
 
