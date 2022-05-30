@@ -1,5 +1,6 @@
 const { gql } = require("apollo-server");
 const fs = require("fs");
+const { GraphQLScalarType } = require("graphql");
 
 let typedef = [];
 let _resolver = { Query: {}, Mutation: {} };
@@ -199,6 +200,26 @@ const GraphqlProvider = {
       );
     // appolo server will complain if not delete
     else delete _resolver.Query;
+  },
+  addScalarType({
+    name,
+    description,
+    parseValue = () => {},
+    serialize = () => {},
+    parseLiteral = () => {},
+  }) {
+    // add to resolver
+    _resolver[name] = new GraphQLScalarType({
+      name,
+      description,
+      parseValue,
+      serialize,
+      parseLiteral,
+    });
+    // add to type def
+    typedef.push(gql`scalar ${name}`);
+
+    return this;
   },
   get typeDefs() {
     return typedef;
