@@ -1,6 +1,13 @@
 const { GraphqlProvider } = require("../graphql-provider"); // make sure this is where the lib exist
 const User = require("../model/User");
 const jwt = require("jsonwebtoken");
+const { JsonWebTokenError } = require("jsonwebtoken");
+const { TokenExpiredError } = require("jsonwebtoken");
+const {
+  AuthenticationError,
+  UserInputError,
+  ApolloError,
+} = require("apollo-server");
 
 GraphqlProvider.addType({
   User: `
@@ -21,7 +28,6 @@ GraphqlProvider.addType({
   `,
 })
 
-  // this method args (QueryName, returnType, Resolver)
   .addQuery({
     name: "getUser",
     params: {
@@ -78,48 +84,39 @@ GraphqlProvider.addType({
       password: "String!",
     },
     type: "UpdatePassword",
-    beforeResolve: async (parent, args, context, info) => {
+    beforeResolve: async (parent, { password }, context, info) => {
       const { req } = context;
 
       if (!req.headers.authorization)
-        return {
-          code: 400,
-          message: "authorization header not exist",
-        };
+        throw new AuthenticationError("authorization header not exist");
 
       // validate token
-      try {
-        const payload = jwt.verify(req.headers.authorization, "the_secret");
-        const user = await User.findByPk(payload.subject);
-        // return bad request if user not exist
-        if (!user)
-          return {
-            code: 404,
-            message: "user not exist",
-          };
-        // map user object to context.user if success
-        context.user = user;
-      } catch {
-        return {
-          code: 403,
-          message: "bad token",
-        };
-      }
+      const payload = jwt.verify(req.headers.authorization, "the_secret");
+      const user = await User.findByPk(payload.subject);
+      if (password.length < 8)
+        throw new UserInputError("password required at least 8 characters");
+      // return bad request if user not exist
+      if (!user) throw new Error("User not exist");
+      // map user object to context.user if success
+      context.user = user;
     },
-
+    onError: (err) => {
+      if (err instanceof TokenExpiredError)
+        throw new AuthenticationError("token expired");
+      if (err instanceof JsonWebTokenError)
+        throw new AuthenticationError("invalid token");
+      if (err instanceof ApolloError) throw err;
+      // throw generic error if the err instance can't be identify
+      // the generic error will be automatically converted to the Interal_server_error of graphql
+      throw new Error("An Error Has Occured");
+    },
     resolver: async (parent, { password }, context, info) => {
       context.user.password = password;
-      try {
-        await context.user.save();
-        return {
-          code: 200,
-          message: "password updated",
-        };
-      } catch {
-        return {
-          code: 500,
-          message: "something went wrong while trying to update password",
-        };
-      }
+      await context.user.save();
+
+      return {
+        code: 200,
+        message: "password updated",
+      };
     },
   });
