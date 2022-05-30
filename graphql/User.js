@@ -7,24 +7,26 @@ const { verifyUser } = require("../lib/auth-middleware");
 const { JWT_SECRET } = require("../config");
 const validator = require("validator").default;
 
-GraphqlProvider.addType({
-  User: `
+GraphqlProvider.addType(
+  `
+  type User{ 
     id: ID!,
     email:String,
     username:String,
     createdAt:Date,
     updatedAt:Date
-  `,
-  CreateUser: `
+  }
+  type CreateUser{
     code:String,
     message:String
     token:String
-  `,
-  UpdatePassword: `
+  }
+  type UpdatePassword{
     code:String,
     message:String
-  `,
-})
+  }
+`
+)
 
   .get({
     name: "User",

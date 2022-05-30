@@ -6,12 +6,14 @@ const { errorHanlder, customErrorCodes } = require("../lib/error");
 const { UserInputError, ApolloError } = require("apollo-server");
 const { JWT_SECRET } = require("../config");
 
-GraphqlProvider.addType({
-  Auth: `
+GraphqlProvider.addType(
+  `
+  type Auth {
     code:Int,
     message:String,
-  `,
-})
+  }
+`
+)
 
   // this method args (QueryName, returnType, Resolver)
   .addQuery({
