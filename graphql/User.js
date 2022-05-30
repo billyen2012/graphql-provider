@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { UserInputError, ApolloError } = require("apollo-server");
 const { errorHanlder, customErrorCodes } = require("../lib/error");
 const { verifyUser } = require("../lib/auth-middleware");
+const { JWT_SECRET } = require("../config");
 const validator = require("validator").default;
 
 GraphqlProvider.addType({
@@ -75,7 +76,7 @@ GraphqlProvider.addType({
       return User.create({ username, password, email }).then((e) => ({
         code: 200,
         message: "user created",
-        token: jwt.sign({ subject: e.id }, "the_secret"),
+        token: jwt.sign({ subject: e.id }, JWT_SECRET),
       }));
     },
   })

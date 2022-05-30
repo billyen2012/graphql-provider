@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 const { errorHanlder, customErrorCodes } = require("../lib/error");
 const { UserInputError, ApolloError } = require("apollo-server");
+const { JWT_SECRET } = require("../config");
 
 GraphqlProvider.addType({
   Auth: `
@@ -44,7 +45,7 @@ GraphqlProvider.addType({
         return {
           code: 200,
           // change to your own secret
-          message: jwt.sign({ subject: e.id }, "the_secret"),
+          message: jwt.sign({ subject: e.id }, JWT_SECRET),
         };
       }),
   });
