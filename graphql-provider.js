@@ -72,6 +72,78 @@ const GraphqlProvider = {
     });
     return this;
   },
+  get({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+    onError = null,
+  }) {
+    name = "get" + name;
+    return this.addQuery({
+      name,
+      params,
+      type,
+      beforeResolve,
+      resolver,
+      onError,
+    });
+  },
+  post({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+    onError = null,
+  }) {
+    name = "post" + name;
+    return this.addMutation({
+      name,
+      params,
+      type,
+      beforeResolve,
+      resolver,
+      onError,
+    });
+  },
+  put({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+    onError = null,
+  }) {
+    name = "put" + name;
+    return this.addMutation({
+      name,
+      params,
+      type,
+      beforeResolve,
+      resolver,
+      onError,
+    });
+  },
+  delete({
+    name = "",
+    params = {},
+    type = "",
+    beforeResolve = () => {},
+    resolver = () => {},
+    onError = null,
+  }) {
+    name = "delete" + name;
+    return this.addMutation({
+      name,
+      params,
+      type,
+      beforeResolve,
+      resolver,
+      onError,
+    });
+  },
   /**
    * ```js
    * GraphqlProvider.addType({
