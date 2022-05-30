@@ -7,11 +7,17 @@ let _resolver = { Query: {}, Mutation: {} };
 const resolverFunction = ({
   resolver = () => {},
   beforeResolve = () => {},
+  onError = null,
 }) => {
   return async (parent, args, context, info) => {
-    const response = await beforeResolve(parent, args, context, info);
-    if (response) return response;
-    return resolver(parent, args, context, info);
+    try {
+      const response = await beforeResolve(parent, args, context, info);
+      if (response) return response;
+      return resolver(parent, args, context, info);
+    } catch (err) {
+      if (typeof onError !== "function") throw err;
+      return onError(err);
+    }
   };
 };
 
@@ -32,13 +38,18 @@ const GraphqlProvider = {
     type = "",
     beforeResolve = () => {},
     resolver = () => {},
+    onError = null,
   }) {
     typedef.push(gql`
       extend type Query{
         ${name}${getParams(params)}: ${type}
       }
     `);
-    _resolver.Query[name] = resolverFunction({ resolver, beforeResolve });
+    _resolver.Query[name] = resolverFunction({
+      resolver,
+      beforeResolve,
+      onError,
+    });
     return this;
   },
   addMutation({
@@ -47,13 +58,18 @@ const GraphqlProvider = {
     type = "",
     beforeResolve = () => {},
     resolver = () => {},
+    onError = null,
   }) {
     typedef.push(gql`
       extend type Mutation{
         ${name}${getParams(params)}: ${type}
       }
     `);
-    _resolver.Mutation[name] = resolverFunction({ resolver, beforeResolve });
+    _resolver.Mutation[name] = resolverFunction({
+      resolver,
+      beforeResolve,
+      onError,
+    });
     return this;
   },
   /**
