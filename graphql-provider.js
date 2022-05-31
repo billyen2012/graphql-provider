@@ -285,6 +285,18 @@ const GraphqlProvider = {
     // appolo server will complain if not delete
     else delete _resolver.Query;
   },
+  addCustomResolver(matchType, resolverObj) {
+    if (_resolver[matchType])
+      _resolver[matchType] = {
+        [matchType]: {
+          ..._resolver[matchType],
+          ...resolverObj,
+        },
+      };
+    else _resolver[matchType] = resolverObj;
+
+    return this;
+  },
   addScalarType({
     name,
     description,
