@@ -47,8 +47,9 @@ GraphqlProvider.addType(
     },
   })
   // update password
-  .put({
+  .update({
     name: "Password",
+    description: "update user's self password",
     params: {
       password: "String!",
     },

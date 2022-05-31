@@ -15,6 +15,7 @@ GraphqlProvider.addType(
 `
 ).addQuery({
   name: "login",
+  description: "User Login",
   params: {
     username: "String!",
     password: "String!",

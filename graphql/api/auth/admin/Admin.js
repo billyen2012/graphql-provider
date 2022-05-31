@@ -22,15 +22,16 @@ GraphqlProvider
   })
   // get users info
   .get({
-    name: "Users",
+    name: "UsersAdmin",
     type: `[User]`,
     resolver: async () => {
       return User.findAll().then((e) => e.map((model) => model.toJSON()));
     },
   })
   // create a user
-  .post({
-    name: "User",
+  .create({
+    name: "UserAdmin",
+    description: "create a user by an admin account",
     params: {
       username: "String!",
       password: "String!",
@@ -64,8 +65,9 @@ GraphqlProvider
     },
   })
 
-  .put({
-    name: "UserPassword",
+  .update({
+    name: "UserPasswordAdmin",
+    description: "update an user's password",
     params: {
       id: "ID!",
       password: "String!",

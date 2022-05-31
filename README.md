@@ -140,11 +140,11 @@ GraphqlProvider.add({
   name: "User",
 });
 // this will add `postUser` to Mutation (create resources)
-GraphqlProvider.post({
+GraphqlProvider.create({
   name: "User",
 });
 // this will add `putUser` to Mutation (update resources)
-GraphqlProvider.put({
+GraphqlProvider.update({
   name: "User",
 });
 // this will add `deleteUser` to Mutation (delete resources)

@@ -8,6 +8,7 @@ const { customErrorCodes } = require("../../lib/error");
 
 GraphqlProvider.addMutation({
   name: "register",
+  description: "User Registration (for general user)",
   type: "CreateUser",
   params: {
     username: "String!",

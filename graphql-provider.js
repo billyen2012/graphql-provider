@@ -112,6 +112,7 @@ const GraphqlProvider = {
   },
   addQuery({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -120,7 +121,11 @@ const GraphqlProvider = {
     onError = null,
   }) {
     typedef.push(gql`
+
       extend type Query{
+        """
+        ${description}
+        """
         ${name}${getParams(params)}: ${type}
       }
     `);
@@ -134,6 +139,7 @@ const GraphqlProvider = {
   },
   addMutation({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -143,6 +149,9 @@ const GraphqlProvider = {
   }) {
     typedef.push(gql`
       extend type Mutation{
+        """
+        ${description}
+        """
         ${name}${getParams(params)}: ${type}
       }
     `);
@@ -156,6 +165,7 @@ const GraphqlProvider = {
   },
   get({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -166,6 +176,7 @@ const GraphqlProvider = {
     name = "get" + name;
     return this.addQuery({
       name,
+      description,
       params,
       type,
       beforeResolve,
@@ -174,8 +185,9 @@ const GraphqlProvider = {
       onError,
     });
   },
-  post({
+  create({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -183,9 +195,10 @@ const GraphqlProvider = {
     afterResolve = () => {},
     onError = null,
   }) {
-    name = "post" + name;
+    name = "create" + name;
     return this.addMutation({
       name,
+      description,
       params,
       type,
       beforeResolve,
@@ -194,8 +207,9 @@ const GraphqlProvider = {
       onError,
     });
   },
-  put({
+  update({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -203,9 +217,10 @@ const GraphqlProvider = {
     resolver = () => {},
     onError = null,
   }) {
-    name = "put" + name;
+    name = "update" + name;
     return this.addMutation({
       name,
+      description,
       params,
       type,
       beforeResolve,
@@ -216,6 +231,7 @@ const GraphqlProvider = {
   },
   delete({
     name = "",
+    description = "",
     params = {},
     type = "",
     beforeResolve = () => {},
@@ -226,6 +242,7 @@ const GraphqlProvider = {
     name = "delete" + name;
     return this.addMutation({
       name,
+      description,
       params,
       type,
       beforeResolve,
