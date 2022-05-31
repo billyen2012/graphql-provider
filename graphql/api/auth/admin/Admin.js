@@ -9,7 +9,8 @@ const validator = require("validator").default;
 GraphqlProvider
   // get user by id
   .get({
-    name: "User",
+    name: "UserAdmin",
+    description: "get a user's info by id",
     params: {
       id: "ID!",
     },
@@ -20,9 +21,10 @@ GraphqlProvider
       );
     },
   })
-  // get users info
+  // get all users info
   .get({
     name: "UsersAdmin",
+    description: "get all users info",
     type: `[User]`,
     resolver: async () => {
       return User.findAll().then((e) => e.map((model) => model.toJSON()));
