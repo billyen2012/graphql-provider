@@ -7,7 +7,8 @@ const {
 } = require("./config");
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize(
-  `postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`
+  `postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`,
+  { logging: false }
 );
 
 module.exports = sequelize;

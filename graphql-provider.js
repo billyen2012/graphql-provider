@@ -22,6 +22,7 @@ const fileLoader = (path) => {
   } else {
     _middleware_ = null;
   }
+
   const directories = [];
   // start loading files
   files.forEach((file) => {
@@ -29,6 +30,7 @@ const fileLoader = (path) => {
     if (fileState.isFile()) return require(`${path}/${file}`);
     if (fileState.isDirectory()) return directories.push(file);
   });
+
   // then load sub directories recursively
   directories.forEach((directory) => {
     fileLoader(`${path}/${directory}`);

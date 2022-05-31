@@ -1,37 +1,13 @@
-const { GraphqlProvider } = require("../graphql-provider"); // make sure this is where the lib exist
-const User = require("../model/User");
+const { GraphqlProvider } = require("../../../graphql-provider"); // make sure this is where the lib exist
+const User = require("../../../model/User");
 const jwt = require("jsonwebtoken");
 const { UserInputError, ApolloError } = require("apollo-server");
-const { customErrorCodes } = require("../lib/error");
-const { verifyUser } = require("../lib/auth-middleware");
-const { JWT_SECRET } = require("../config");
-const Article = require("../model/Article");
+const { customErrorCodes } = require("../../../lib/error");
+const { JWT_SECRET } = require("../../../config");
 const validator = require("validator").default;
 
-User.hasMany(Article, { foreignKey: "userId" });
-
-GraphqlProvider.addType(
-  `
-  type User{
-    id: ID!,
-    email:String,
-    username:String,
-    createdAt:Date,
-    updatedAt:Date,
-    Articles:[Article]
-  }
-  type CreateUser{
-    code:String,
-    message:String
-    token:String
-  }
-  type UpdatePassword{
-    code:String,
-    message:String
-  }
-`
-)
-
+GraphqlProvider
+  // get user by id
   .get({
     name: "User",
     params: {
@@ -44,7 +20,7 @@ GraphqlProvider.addType(
       );
     },
   })
-
+  // get users info
   .get({
     name: "Users",
     type: `[User]`,
@@ -52,18 +28,19 @@ GraphqlProvider.addType(
       return User.findAll().then((e) => e.map((model) => model.toJSON()));
     },
   })
-
+  // create a user
   .post({
     name: "User",
     params: {
       username: "String!",
       password: "String!",
       email: "String",
+      authType: "AuthType!",
     },
     type: "CreateUser",
     beforeResolve: async (
       parent,
-      { username, password, email },
+      { username, password, email, authType },
       context,
       info
     ) => {
@@ -84,25 +61,5 @@ GraphqlProvider.addType(
         message: "user created",
         token: jwt.sign({ subject: e.id }, JWT_SECRET),
       }));
-    },
-  })
-  .put({
-    name: "Password",
-    params: {
-      password: "String!",
-    },
-    type: "UpdatePassword",
-    beforeResolve: verifyUser((parent, { password }, context, info) => {
-      if (password.length < 8)
-        throw new UserInputError("password required at least 8 characters");
-    }),
-    resolver: async (parent, { password }, context, info) => {
-      context.user.password = password;
-      await context.user.save();
-
-      return {
-        code: 200,
-        message: "password updated",
-      };
     },
   });

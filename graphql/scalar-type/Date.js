@@ -1,4 +1,4 @@
-const { GraphqlProvider } = require("../graphql-provider");
+const { GraphqlProvider } = require("../../graphql-provider");
 
 // see https://www.apollographql.com/docs/apollo-server/schema/custom-scalars/  for details
 GraphqlProvider.addScalarType({

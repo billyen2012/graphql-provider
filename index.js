@@ -11,6 +11,14 @@ const server = new ApolloServer({
   csrfPrevention: true,
 });
 
+// GraphqlProvider.beforeResolve(() => {
+//   console.log("global before resolved called");
+// });
+
+// GraphqlProvider.afterResolve(() => {
+//   console.log("global after resolved called");
+// });
+
 // if local onError is not defined, this will be called
 // make sure err is only the subclass of Error object
 // (better to just use ApolloError)
