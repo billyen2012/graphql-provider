@@ -9,6 +9,7 @@ const {
 const { customErrorCodes } = require("../../../lib/error");
 const { JWT_SECRET } = require("../../../config");
 const Article = require("../../../model/Article");
+const { gqlQueryKeyParser } = require("../../../lib/gql-querykey-parser");
 const validator = require("validator").default;
 
 User.hasMany(Article, { foreignKey: "userId" });
@@ -44,7 +45,12 @@ GraphqlProvider.addType(
     description: "get self basic info",
     type: `User`,
     resolver: async (parent, args, context, info) => {
-      return context.user.toJSON();
+      const { searchKeys } = gqlQueryKeyParser(context.req.body.query);
+      const include = [];
+      if (searchKeys.includes("Articles")) include.push(Article);
+      return User.findByPk(context.user.id, { include }).then((e) =>
+        e.toJSON()
+      );
     },
   })
   // update password
