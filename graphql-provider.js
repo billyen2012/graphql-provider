@@ -4,6 +4,7 @@ const { GraphQLScalarType } = require("graphql");
 
 let typedef = [];
 let _resolver = { Query: {}, Mutation: {} };
+let defaultError = null;
 
 const resolverFunction = ({
   resolver = () => {},
@@ -14,10 +15,12 @@ const resolverFunction = ({
     try {
       const response = await beforeResolve(parent, args, context, info);
       if (response) return response;
-      return resolver(parent, args, context, info);
+      const resolveResponse = await resolver(parent, args, context, info);
+      return resolveResponse;
     } catch (err) {
-      if (typeof onError !== "function") throw err;
-      return onError(err);
+      if (typeof onError !== "function" && typeof defaultError !== "function")
+        throw err;
+      return typeof onError === "function" ? onError(err) : defaultError(err);
     }
   };
 };
@@ -33,6 +36,9 @@ const getParams = (params = {}) => {
 };
 
 const GraphqlProvider = {
+  onError(errorCallback = () => {}) {
+    defaultError = errorCallback;
+  },
   addQuery({
     name = "",
     params = {},
@@ -207,6 +213,11 @@ const GraphqlProvider = {
   },
   get resolvers() {
     return _resolver;
+  },
+  get context() {
+    return ({ req, res }) => {
+      return { req, res };
+    };
   },
 };
 
