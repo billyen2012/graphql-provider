@@ -2,7 +2,7 @@ const { GraphqlProvider } = require("../graphql-provider"); // make sure this is
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
-const { errorHanlder, customErrorCodes } = require("../lib/error");
+const { customErrorCodes } = require("../lib/error");
 const { UserInputError, ApolloError } = require("apollo-server");
 const { JWT_SECRET } = require("../config");
 
@@ -27,7 +27,6 @@ GraphqlProvider.addType(
       if (!username) throw new UserInputError("username can not be empty");
       if (!password) throw new UserInputError("password can not be empty");
     },
-    onError: errorHanlder,
     resolver: async (parent, { username, password }, context, info) =>
       User.findOne({ where: { username } }).then((e) => {
         // if user not found

@@ -14,6 +14,6 @@ User.beforeSave((model) => {
   model.password = bcrypt.hashSync(model.password, 10);
 });
 
-sequelize.sync();
+User.sync();
 
 module.exports = User;
