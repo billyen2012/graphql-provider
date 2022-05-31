@@ -9,6 +9,7 @@ let defaultError = null;
 const resolverFunction = ({
   resolver = () => {},
   beforeResolve = () => {},
+  afterResolve = () => {},
   onError = null,
 }) => {
   return async (parent, args, context, info) => {
@@ -21,6 +22,8 @@ const resolverFunction = ({
       if (typeof onError !== "function" && typeof defaultError !== "function")
         throw err;
       return typeof onError === "function" ? onError(err) : defaultError(err);
+    } finally {
+      afterResolve(parent, args, context, info);
     }
   };
 };
@@ -45,6 +48,7 @@ const GraphqlProvider = {
     type = "",
     beforeResolve = () => {},
     resolver = () => {},
+    afterResolve = () => {},
     onError = null,
   }) {
     typedef.push(gql`
@@ -55,6 +59,7 @@ const GraphqlProvider = {
     _resolver.Query[name] = resolverFunction({
       resolver,
       beforeResolve,
+      afterResolve,
       onError,
     });
     return this;
@@ -64,6 +69,7 @@ const GraphqlProvider = {
     params = {},
     type = "",
     beforeResolve = () => {},
+    afterResolve = () => {},
     resolver = () => {},
     onError = null,
   }) {
@@ -75,6 +81,7 @@ const GraphqlProvider = {
     _resolver.Mutation[name] = resolverFunction({
       resolver,
       beforeResolve,
+      afterResolve,
       onError,
     });
     return this;
@@ -84,6 +91,7 @@ const GraphqlProvider = {
     params = {},
     type = "",
     beforeResolve = () => {},
+    afterResolve = () => {},
     resolver = () => {},
     onError = null,
   }) {
@@ -93,6 +101,7 @@ const GraphqlProvider = {
       params,
       type,
       beforeResolve,
+      afterResolve,
       resolver,
       onError,
     });
@@ -103,6 +112,7 @@ const GraphqlProvider = {
     type = "",
     beforeResolve = () => {},
     resolver = () => {},
+    afterResolve = () => {},
     onError = null,
   }) {
     name = "post" + name;
@@ -111,6 +121,7 @@ const GraphqlProvider = {
       params,
       type,
       beforeResolve,
+      afterResolve,
       resolver,
       onError,
     });
@@ -120,6 +131,7 @@ const GraphqlProvider = {
     params = {},
     type = "",
     beforeResolve = () => {},
+    afterResolve = () => {},
     resolver = () => {},
     onError = null,
   }) {
@@ -129,6 +141,7 @@ const GraphqlProvider = {
       params,
       type,
       beforeResolve,
+      afterResolve,
       resolver,
       onError,
     });
@@ -138,6 +151,7 @@ const GraphqlProvider = {
     params = {},
     type = "",
     beforeResolve = () => {},
+    afterResolve = () => {},
     resolver = () => {},
     onError = null,
   }) {
@@ -147,6 +161,7 @@ const GraphqlProvider = {
       params,
       type,
       beforeResolve,
+      afterResolve,
       resolver,
       onError,
     });
