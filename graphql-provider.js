@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+const { gql, ApolloServer } = require("apollo-server");
 const fs = require("fs");
 const { GraphQLScalarType } = require("graphql");
 
@@ -8,6 +8,7 @@ let defaultError = null;
 let globalBeforeResolve = () => {};
 let globalAfterResolve = () => {};
 let _middleware_ = null;
+let server = null;
 
 const fileLoader = (path) => {
   const files = fs.readdirSync(path);
@@ -316,6 +317,24 @@ const GraphqlProvider = {
     typedef.push(gql`scalar ${name}`);
 
     return this;
+  },
+  /**
+   *
+   * @param {ConstructorParameters<typeof import('apollo-server').ApolloServer>} options
+   * @returns
+   */
+  async start(options) {
+    server = new ApolloServer({
+      typeDefs: this.typeDefs,
+      resolvers: this.resolvers,
+      context: this.context,
+      csrfPrevention: true,
+      ...options,
+    });
+    return server.listen();
+  },
+  async stop() {
+    return server.stop();
   },
   get typeDefs() {
     return typedef;
