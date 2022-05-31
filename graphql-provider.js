@@ -17,6 +17,8 @@ const fileLoader = (path) => {
   if (files.includes(middlewareFileName)) {
     const middlewareIndex = files.indexOf(middlewareFileName);
     _middleware_ = require(`${path}/${files[middlewareIndex]}`);
+    // remove _middeware from files array after load
+    files.splice(middlewareIndex, 1);
   } else {
     _middleware_ = null;
   }
