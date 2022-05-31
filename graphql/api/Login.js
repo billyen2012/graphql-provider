@@ -1,10 +1,10 @@
-const { GraphqlProvider } = require("../graphql-provider"); // make sure this is where the lib exist
+const { GraphqlProvider } = require("../../graphql-provider"); // make sure this is where the lib exist
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../model/User");
-const { customErrorCodes } = require("../lib/error");
+const User = require("../../model/User");
+const { customErrorCodes } = require("../../lib/error");
 const { UserInputError, ApolloError } = require("apollo-server");
-const { JWT_SECRET } = require("../config");
+const { JWT_SECRET } = require("../../config");
 
 GraphqlProvider.addType(
   `

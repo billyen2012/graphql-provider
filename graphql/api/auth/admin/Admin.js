@@ -1,9 +1,9 @@
-const { GraphqlProvider } = require("../../../graphql-provider"); // make sure this is where the lib exist
-const User = require("../../../model/User");
+const { GraphqlProvider } = require("../../../../graphql-provider"); // make sure this is where the lib exist
+const User = require("../../../../model/User");
 const jwt = require("jsonwebtoken");
 const { UserInputError, ApolloError } = require("apollo-server");
-const { customErrorCodes } = require("../../../lib/error");
-const { JWT_SECRET } = require("../../../config");
+const { customErrorCodes } = require("../../../../lib/error");
+const { JWT_SECRET } = require("../../../../config");
 const validator = require("validator").default;
 
 GraphqlProvider
@@ -61,5 +61,34 @@ GraphqlProvider
         message: "user created",
         token: jwt.sign({ subject: e.id }, JWT_SECRET),
       }));
+    },
+  })
+
+  .put({
+    name: "UserPassword",
+    params: {
+      id: "ID!",
+      password: "String!",
+    },
+    type: "UpdatePassword",
+    beforeResolve: (parent, { password }, context, info) => {
+      if (password.length < 8)
+        throw new UserInputError("password required at least 8 characters");
+    },
+    resolver: async (parent, { id, password }, context, info) => {
+      const user = await User.findByPk(id);
+      if (!user)
+        throw new ApolloError(
+          "User Id Not Found",
+          customErrorCodes.USER_NOT_EXIST
+        );
+
+      user.password = password;
+      await user.save();
+
+      return {
+        code: 200,
+        message: "password updated",
+      };
     },
   });

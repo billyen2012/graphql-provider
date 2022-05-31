@@ -1,10 +1,10 @@
-const { GraphqlProvider } = require("../graphql-provider");
-const User = require("../model/User");
+const { GraphqlProvider } = require("../../graphql-provider");
+const User = require("../../model/User");
 const validator = require("validator").default;
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config");
-const { ApolloError } = require("apollo-server");
-const { customErrorCodes } = require("../lib/error");
+const { JWT_SECRET } = require("../../config");
+const { ApolloError, UserInputError } = require("apollo-server");
+const { customErrorCodes } = require("../../lib/error");
 
 GraphqlProvider.addMutation({
   name: "register",
@@ -26,7 +26,7 @@ GraphqlProvider.addMutation({
       throw new UserInputError("invalid email");
     if (await User.findOne({ where: { username } })) {
       throw new ApolloError(
-        "User already exist",
+        "username already exist",
         customErrorCodes.USER_ALREADY_EXIST
       );
     }

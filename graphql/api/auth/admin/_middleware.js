@@ -1,5 +1,5 @@
 const { AuthenticationError } = require("apollo-server");
-const { verifyUser } = require("../../../lib/auth-middleware");
+const { verifyUser } = require("../../../../lib/auth-middleware");
 
 module.exports = async (parent, args, context, info) => {
   // verify user

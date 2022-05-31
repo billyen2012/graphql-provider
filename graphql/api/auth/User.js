@@ -1,14 +1,14 @@
-const { GraphqlProvider } = require("../../graphql-provider"); // make sure this is where the lib exist
-const User = require("../../model/User");
+const { GraphqlProvider } = require("../../../graphql-provider"); // make sure this is where the lib exist
+const User = require("../../../model/User");
 const jwt = require("jsonwebtoken");
 const {
   UserInputError,
   ApolloError,
   AuthenticationError,
 } = require("apollo-server");
-const { customErrorCodes } = require("../../lib/error");
-const { JWT_SECRET } = require("../../config");
-const Article = require("../../model/Article");
+const { customErrorCodes } = require("../../../lib/error");
+const { JWT_SECRET } = require("../../../config");
+const Article = require("../../../model/Article");
 const validator = require("validator").default;
 
 User.hasMany(Article, { foreignKey: "userId" });
