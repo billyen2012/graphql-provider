@@ -1,15 +1,7 @@
-const { ApolloServer } = require("apollo-server");
 const { GraphqlProvider } = require("./graphql-provider"); // make sure this is where the lib exist
 const { errorHanlder } = require("./lib/error");
 
 GraphqlProvider.load(process.cwd() + "/graphql"); // make sure this is where all the grapql files exist
-
-const server = new ApolloServer({
-  typeDefs: GraphqlProvider.typeDefs,
-  resolvers: GraphqlProvider.resolvers,
-  context: GraphqlProvider.context,
-  csrfPrevention: true,
-});
 
 // GraphqlProvider.beforeResolve(() => {
 //   console.log("global before resolved called");
@@ -27,6 +19,6 @@ GraphqlProvider.onError((err) => {
   errorHanlder(err);
 });
 
-server.listen().then(({ url }) => {
+GraphqlProvider.start().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
