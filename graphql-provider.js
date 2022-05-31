@@ -5,6 +5,8 @@ const { GraphQLScalarType } = require("graphql");
 let typedef = [];
 let _resolver = { Query: {}, Mutation: {} };
 let defaultError = null;
+let globalBeforeResolve = () => {};
+let globalAfterResolve = () => {};
 
 const resolverFunction = ({
   resolver = () => {},
@@ -14,8 +16,27 @@ const resolverFunction = ({
 }) => {
   return async (parent, args, context, info) => {
     try {
-      const response = await beforeResolve(parent, args, context, info);
-      if (response) return response;
+      // global before resolve
+      const globalBeforeResolveResponse = await globalBeforeResolve(
+        parent,
+        args,
+        context,
+        info
+      );
+
+      if (globalBeforeResolveResponse) return globalBeforeResolveResponse;
+
+      // local before resolve
+      const beforeResolveResponse = await beforeResolve(
+        parent,
+        args,
+        context,
+        info
+      );
+
+      if (beforeResolveResponse) return beforeResolveResponse;
+
+      // resolver
       const resolveResponse = await resolver(parent, args, context, info);
       return resolveResponse;
     } catch (err) {
@@ -23,7 +44,11 @@ const resolverFunction = ({
         throw err;
       return typeof onError === "function" ? onError(err) : defaultError(err);
     } finally {
+      // local after resolve
       afterResolve(parent, args, context, info);
+
+      // global after resolve
+      globalAfterResolve(parent, args, context, info);
     }
   };
 };
@@ -39,6 +64,12 @@ const getParams = (params = {}) => {
 };
 
 const GraphqlProvider = {
+  beforeResolve(callback = () => {}) {
+    globalBeforeResolve = callback;
+  },
+  afterResolve(callback = () => {}) {
+    globalAfterResolve = callback;
+  },
   onError(errorCallback = () => {}) {
     defaultError = errorCallback;
   },
