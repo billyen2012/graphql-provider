@@ -41,6 +41,7 @@ GraphqlProvider.addType(
   // get user's basic info
   .get({
     name: "Me",
+    description: "get self basic info",
     type: `User`,
     resolver: async (parent, args, context, info) => {
       return context.user.toJSON();
