@@ -28,6 +28,9 @@ GraphqlProvider.addType(
   }
 `
 )
+  .addCustomResolver("Article", {
+    User: async (parent) => parent.getUser(),
+  })
   // get user's self article
   .get({
     name: "MyArticles",
@@ -37,7 +40,7 @@ GraphqlProvider.addType(
       return Article.findAll({ where: { userId: context.user.id } }).then(
         (articles) => {
           if (!articles) return null;
-          return articles.map((e) => e.toJSON());
+          return articles;
         }
       );
     },
@@ -52,10 +55,6 @@ GraphqlProvider.addType(
         where: {
           [Op.or]: [{ visibility: "PUBLIC" }, { userId: context.user.id }],
         },
-        include: User,
-      }).then((articles) => {
-        if (!articles) return null;
-        return articles.map((e) => e.toJSON());
       });
     },
   })
@@ -70,13 +69,13 @@ GraphqlProvider.addType(
       id: "ID!",
     },
     resolver: async (parent, { id }, context, info) => {
-      return Article.findByPk(id, { include: User }).then((e) => {
+      return Article.findByPk(id).then((e) => {
         if (!e) return null;
         if (e.visibility === "PRIVATE" && context.user.id !== e.userId)
           throw new AuthenticationError(
             "this is a private article that own by other"
           );
-        return e.toJSON();
+        return e;
       });
     },
   })

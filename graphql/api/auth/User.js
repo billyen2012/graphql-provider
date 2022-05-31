@@ -39,18 +39,19 @@ GraphqlProvider.addType(
   }
 `
 )
+  .addCustomResolver("User", {
+    Articles: async (parent) => parent.getArticles(),
+  })
   // get user's basic info
   .get({
     name: "Me",
     description: "get self basic info",
     type: `User`,
     resolver: async (parent, args, context, info) => {
-      const { searchKeys } = gqlQueryKeyParser(context.req.body.query);
-      const include = [];
-      if (searchKeys.includes("Articles")) include.push(Article);
-      return User.findByPk(context.user.id, { include }).then((e) =>
-        e.toJSON()
-      );
+      // const { searchKeys } = gqlQueryKeyParser(context.req.body.query);
+      // const include = [];
+      // if (searchKeys.includes("Articles")) include.push(Article);
+      return User.findByPk(context.user.id);
     },
   })
   // update password
