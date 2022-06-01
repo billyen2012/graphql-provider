@@ -1,3 +1,5 @@
+# Motivation
+
 This all come to three primary developmental issues of `graphql` I found.
 
 I. `graphql` unnecessarily separate the logic of `Root Type` and its `Resolver` to two different placeses.
@@ -5,31 +7,31 @@ I. `graphql` unnecessarily separate the logic of `Root Type` and its `Resolver` 
 so if you create a field for a `Root Type` (either `Query` or `Mutation`), then `resolver` “must” also has a definition for that field. (and vice versa, or `graphql` server will complain and fail)
 
 For instance:
+
 ```graphql
 type Query{
   # must has a resolver for this field, or gql will fail
- 	getUser: UserType
+  getUser: User
 }
 
 const resolvers = {
  # resolver for root type Query
  Query:{
-      # for getUser Query
-      # must has this field in Query root type, or gql will fail
-      getUser: (parent, args, context, info)=>{
-          // the code that will resolve getUser Query…
-      }
+      # for getUser Query, must has this field in Query root type, or gql will fail
+      getUser: (parent, args, context, info)=>{}
    }
 }
 ```
+
 But woundn't it be nice if we can just do something like this?
+
 ```graphql
 # this is much cleaner and intuitive, isn't it?
 type Query{
- 	getUser{
-     returnType: User
-     resolver:()=>{...}
-   }
+  getUser{
+      returnType: User
+      resolver:()=>{...}
+  }
 }
 ```
 
