@@ -7,15 +7,15 @@ so if you create a field for a `Root Type` (either `Query` or `Mutation`), then 
 For instance:
 ```graphql
 type Query{
-  // must has a resolver for this field, or gql will fail
- 	getUser: UserType 
+  # must has a resolver for this field, or gql will fail
+ 	getUser: UserType
 }
 
 const resolvers = {
- // resolver for root type Query
+ # resolver for root type Query
  Query:{
-      // for getUser Query
-      // must has this field in Query root type, or gql will fail
+      # for getUser Query
+      # must has this field in Query root type, or gql will fail
       getUser: (parent, args, context, info)=>{
           // the code that will resolve getUser Query…
       }
@@ -24,7 +24,7 @@ const resolvers = {
 ```
 But woundn't it be nice if we can just do something like this?
 ```graphql
-// this is much cleaner and intuitive, isn't it?
+# this is much cleaner and intuitive, isn't it?
 type Query{
  	getUser{
      returnType: User
