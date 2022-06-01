@@ -139,11 +139,11 @@ below show the 4 methods provided by the provider and it will add a prefix to th
 GraphqlProvider.add({
   name: "User",
 });
-// this will add `postUser` to Mutation (create resources)
+// this will add `createUser` to Mutation (create resources)
 GraphqlProvider.create({
   name: "User",
 });
-// this will add `putUser` to Mutation (update resources)
+// this will add `updateUser` to Mutation (update resources)
 GraphqlProvider.update({
   name: "User",
 });
