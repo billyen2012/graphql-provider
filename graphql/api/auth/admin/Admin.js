@@ -27,7 +27,7 @@ GraphqlProvider
     description: "get all users info",
     type: `[User]`,
     resolver: async () => {
-      return User.findAll().then((e) => e.map((model) => model.toJSON()));
+      return User.findAll();
     },
   })
   // create a user

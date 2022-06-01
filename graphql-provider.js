@@ -7,21 +7,21 @@ let _resolver = { Query: {}, Mutation: {} };
 let defaultError = null;
 let globalBeforeResolve = () => {};
 let globalAfterResolve = () => {};
-let _middleware_ = null;
+let _middleware_ = [];
 let server = null;
 
 const fileLoader = (path) => {
   const files = fs.readdirSync(path);
+  let hasMiddleware = false;
   // if there is middleware add set it to var _middleware_
   // , where it will be cache for each layer of files for the resolvers
   const middlewareFileName = "_middleware.js";
   if (files.includes(middlewareFileName)) {
     const middlewareIndex = files.indexOf(middlewareFileName);
-    _middleware_ = require(`${path}/${files[middlewareIndex]}`);
+    _middleware_.push(require(`${path}/${files[middlewareIndex]}`));
     // remove _middeware from files array after load
     files.splice(middlewareIndex, 1);
-  } else {
-    _middleware_ = null;
+    hasMiddleware = true;
   }
 
   const directories = [];
@@ -33,20 +33,23 @@ const fileLoader = (path) => {
   });
 
   // then load sub directories recursively
-  directories.forEach((directory) => {
-    fileLoader(`${path}/${directory}`);
-  });
+  if (directories.length > 0)
+    directories.forEach((directory) => {
+      fileLoader(`${path}/${directory}`);
+    });
+  // one level up , if this layer does has middleware
+  if (hasMiddleware) _middleware_.pop(); // then pop it off
 };
 
 const resolverFunction = ({
   resolver = () => {},
   beforeResolve = () => {},
   afterResolve = () => {},
-  _middleware = () => {},
+  _middleware = [],
   onError = null,
 }) => {
   // cache middleware per layer of files loader
-  if (_middleware_) _middleware = _middleware_;
+  if (_middleware_) _middleware = [..._middleware_];
   return async (parent, args, context, info) => {
     try {
       // global before resolve
@@ -60,9 +63,16 @@ const resolverFunction = ({
       if (globalBeforeResolveResponse) return globalBeforeResolveResponse;
 
       // middleware before enter to local
-      const middlewareResponse = await _middleware(parent, args, context, info);
+      for (let middleware of _middleware) {
+        const middlewareResponse = await middleware(
+          parent,
+          args,
+          context,
+          info
+        );
 
-      if (middlewareResponse) return middlewareResponse;
+        if (middlewareResponse) return middlewareResponse;
+      }
 
       // local before resolve
       const beforeResolveResponse = await beforeResolve(
