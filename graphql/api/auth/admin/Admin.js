@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { UserInputError, ApolloError } = require("apollo-server");
 const { customErrorCodes } = require("../../../../lib/error");
 const { JWT_SECRET } = require("../../../../config");
+
 const validator = require("validator").default;
 
 GraphqlProvider
@@ -16,9 +17,7 @@ GraphqlProvider
     },
     type: "User",
     resolver: async (parent, { id }, context, info) => {
-      return User.findByPk(id, { include: Article }).then((e) =>
-        e ? e.toJSON() : null
-      );
+      return User.findByPk(id);
     },
   })
   // get all users info
