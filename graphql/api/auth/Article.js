@@ -4,7 +4,7 @@ const User = require("../../../model/User");
 const { AuthenticationError } = require("apollo-server");
 const { Op } = require("sequelize");
 
-Article.hasOne(User, { foreignKey: "id" });
+Article.belongsTo(User, { foreignKey: "userId" });
 
 GraphqlProvider.addType(
   `
