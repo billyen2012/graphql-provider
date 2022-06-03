@@ -31,7 +31,16 @@ GraphqlProvider.addType(
 `
 )
   .addCustomResolver("User", {
-    Articles: async (parent) => parent.getArticles(),
+    Articles: async (parent, args, context) =>
+      parent
+        .getArticles()
+        .then((articles) =>
+          articles.filter(
+            (article) =>
+              article.visibility === "PUBLIC" ||
+              article.userId === context.user.id
+          )
+        ),
   })
   // get user's basic info
   .get({

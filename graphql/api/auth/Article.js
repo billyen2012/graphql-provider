@@ -1,8 +1,9 @@
 const { GraphqlProvider } = require("../../../graphql-provider");
 const Article = require("../../../model/Article");
 const User = require("../../../model/User");
-const { AuthenticationError } = require("apollo-server");
+const { AuthenticationError, ApolloError } = require("apollo-server");
 const { Op } = require("sequelize");
+const { customErrorCodes } = require("../../../lib/error");
 
 Article.belongsTo(User, { foreignKey: "userId" });
 
@@ -26,6 +27,14 @@ GraphqlProvider.addType(
     code:Int,
     message:String,
   }
+  type DeleteArticle{
+    code:Int,
+    message:String,
+  }
+  type UpdateArticle{
+    code:Int,
+    message:String,
+  }
 `
 )
   .addCustomResolver("Article", {
@@ -36,13 +45,18 @@ GraphqlProvider.addType(
     name: "MyArticles",
     description: "get all articles belong to self",
     type: "[Article]",
-    resolver: async (parent, args, context, info) => {
-      return Article.findAll({ where: { userId: context.user.id } }).then(
-        (articles) => {
-          if (!articles) return null;
-          return articles;
-        }
-      );
+    params: {
+      subject: "String",
+    },
+    resolver: async (parent, { subject }, context, info) => {
+      const subjectQuery = {};
+      if (subject) subjectQuery.subject = { [Op.like]: `%${subject}%` };
+      return Article.findAll({
+        where: { userId: context.user.id, ...subjectQuery },
+      }).then((articles) => {
+        if (!articles) return null;
+        return articles;
+      });
     },
   })
   // get all articles (include private if is created by self)
@@ -50,10 +64,16 @@ GraphqlProvider.addType(
     name: "Articles",
     description: "get all the public articles and article belong to self",
     type: "[Article]",
-    resolver: async (parent, args, context, info) => {
+    params: {
+      subject: "String",
+    },
+    resolver: async (parent, { subject }, context, info) => {
+      const subjectQuery = {};
+      if (subject) subjectQuery.subject = { [Op.like]: `%${subject}%` };
       return Article.findAll({
         where: {
           [Op.or]: [{ visibility: "PUBLIC" }, { userId: context.user.id }],
+          ...subjectQuery,
         },
       });
     },
@@ -77,6 +97,72 @@ GraphqlProvider.addType(
           );
         return e;
       });
+    },
+  })
+  .delete({
+    name: "Article",
+    description: "delete an article under self",
+    type: "DeleteArticle",
+    params: {
+      id: "ID!",
+    },
+    resolver: async (parent, { id }, context, info) => {
+      const article = await Article.findByPk(id);
+      if (!article)
+        throw new ApolloError("article not exist", customErrorCodes.NOT_FOUND);
+      if (article.userId !== context.user.id)
+        throw new AuthenticationError(
+          "This article does not belong to the user"
+        );
+      return article.destroy().then(() => ({
+        code: 200,
+        message: `article id ${article.id} has been deleted `,
+      }));
+    },
+  })
+  .update({
+    name: "Article",
+    description: "update an article under self",
+    type: "UpdateArticle",
+    params: {
+      id: "ID!",
+      subject: "String!",
+      content: "String!",
+      visibility: "Visibility!",
+    },
+    resolver: async (
+      parent,
+      { id, subject, content, visibility },
+      context,
+      info
+    ) => {
+      return Article.findByPk(id)
+        .then((article) => {
+          // validation
+          if (!article)
+            throw new ApolloError(
+              "artilce not found",
+              customErrorCodes.NOT_FOUND
+            );
+
+          //  article ownership check
+
+          if (article.userId !== context.user.id)
+            throw AuthenticationError(
+              "this artilce does not belong to the user"
+            );
+          // update
+          return article.update({
+            userId: context.user.id,
+            subject,
+            content,
+            visibility,
+          });
+        })
+        .then((e) => ({
+          code: 200,
+          message: "create article, article id: " + e.id,
+        }));
     },
   })
   // create an article under self
