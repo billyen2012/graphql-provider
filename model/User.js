@@ -23,6 +23,4 @@ User.beforeSave((model) => {
   model.password = bcrypt.hashSync(model.password, 10);
 });
 
-User.sync();
-
 module.exports = User;

@@ -1,7 +1,7 @@
 const { GraphqlProvider } = require("../../../graphql-provider");
 const Article = require("../../../model/Article");
 const User = require("../../../model/User");
-const { AuthenticationError, ApolloError } = require("apollo-server");
+const { ApolloError } = require("apollo-server");
 const { Op } = require("sequelize");
 const { customErrorCodes } = require("../../../lib/error");
 
@@ -92,8 +92,9 @@ GraphqlProvider.addType(
       return Article.findByPk(id).then((e) => {
         if (!e) return null;
         if (e.visibility === "PRIVATE" && context.user.id !== e.userId)
-          throw new AuthenticationError(
-            "this is a private article that own by other"
+          throw new ApolloError(
+            "this is a private article that own by other",
+            customErrorCodes.ACCESS_NOT_ALLOW
           );
         return e;
       });
@@ -111,8 +112,9 @@ GraphqlProvider.addType(
       if (!article)
         throw new ApolloError("article not exist", customErrorCodes.NOT_FOUND);
       if (article.userId !== context.user.id)
-        throw new AuthenticationError(
-          "This article does not belong to the user"
+        throw new ApolloError(
+          "This article does not belong to the user",
+          customErrorCodes.ACCESS_NOT_ALLOW
         );
       return article.destroy().then(() => ({
         code: 200,
@@ -148,8 +150,9 @@ GraphqlProvider.addType(
           //  article ownership check
 
           if (article.userId !== context.user.id)
-            throw AuthenticationError(
-              "this artilce does not belong to the user"
+            throw ApolloError(
+              "this artilce does not belong to the user",
+              customErrorCodes.ACCESS_NOT_ALLOW
             );
           // update
           return article.update({

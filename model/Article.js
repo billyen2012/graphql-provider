@@ -18,6 +18,4 @@ const Article = sequelize.define("Article", {
   updatedAt: DataTypes.DATE,
 });
 
-Article.sync();
-
 module.exports = Article;
