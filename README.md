@@ -265,7 +265,7 @@ below show the 4 methods provided by the provider and it will add a prefix to th
 
 ```js
 // this will add `getUser` to Query (get resources)
-GraphqlProvider.add({
+GraphqlProvider.get({
   name: "User", // query name
   description: "get self basic info", //description
   params:{
